@@ -2,39 +2,41 @@ package httpx
 
 import "net/http"
 
-type Response[T any] struct {
-	Body       T
+type Response struct {
+	Body       any
 	StatusCode int
 	Headers    http.Header
 }
 
-func (r *Response[T]) SetBody(body T) *Response[T] {
+// SetBody sets the body value for the Response.
+func (r *Response) SetBody(body any) *Response {
 	r.Body = body
 	return r
 }
 
-func (r *Response[T]) SetStatusCode(statusCode int) *Response[T] {
+// SetStatusCode sets the status code for the Response.
+func (r *Response) SetStatusCode(statusCode int) *Response {
 	r.StatusCode = statusCode
 	return r
 }
 
-func (r *Response[T]) AddHeader(key string, value string) *Response[T] {
+// AddHeader adds a single header to the Response.
+func (r *Response) AddHeader(key string, value string) *Response {
 	r.Headers.Add(key, value)
 	return r
 }
 
-func (r *Response[T]) AddHeaders(keyValues ...string) *Response[T] {
-	if len(keyValues)%2 != 0 {
-		panic("keyValues is not divisible by 2")
-	}
-	for i := 0; i < len(keyValues)/2; i++ {
-		r.Headers.Add(keyValues[i*2], keyValues[i*2+1])
+// AddHeaders adds multiple headers to the Response.
+func (r *Response) AddHeaders(values map[string]string) *Response {
+	for k, v := range values {
+		r.Headers.Add(k, v)
 	}
 	return r
 }
 
-func NewResponse[T any](statusCode int, body T) *Response[T] {
-	return &Response[T]{
+// NewResponse creates a new Response with the given status and body.
+func NewResponse(statusCode int, body any) *Response {
+	return &Response{
 		Body:       body,
 		StatusCode: statusCode,
 		Headers:    make(http.Header),
@@ -42,42 +44,42 @@ func NewResponse[T any](statusCode int, body T) *Response[T] {
 }
 
 // Ok returns a Response initialized with status code 200 and without a body and empty headers.
-func Ok() *Response[any] {
-	return NewResponse[any](http.StatusOK, nil)
+func Ok() *Response {
+	return NewResponse(http.StatusOK, nil)
 }
 
 // OkWithBody returns a Response initialized with status code 200 and with a body and empty headers.
-func OkWithBody[T any](body T) *Response[T] {
+func OkWithBody(body any) *Response {
 	return NewResponse(http.StatusOK, body)
 }
 
 // Created returns a Response initialized with status code 201 and without a body and the Location header set.
-func Created(location string) *Response[any] {
-	return NewResponse[any](http.StatusCreated, nil).AddHeader(LocationHeader, location)
+func Created(location string) *Response {
+	return NewResponse(http.StatusCreated, nil).AddHeader(LocationHeader, location)
 }
 
 // Accepted returns a Response initialized with status code 202 and without a body and empty headers.
-func Accepted() *Response[any] {
-	return NewResponse[any](http.StatusAccepted, nil)
+func Accepted() *Response {
+	return NewResponse(http.StatusAccepted, nil)
 }
 
 // NoContent returns a Response initialized with status code 204 and without a body and empty headers.
-func NoContent() *Response[any] {
-	return NewResponse[any](http.StatusNoContent, nil)
+func NoContent() *Response {
+	return NewResponse(http.StatusNoContent, nil)
 }
 
 // BadRequest returns a Response initialized with status code 400 and without a body and empty headers.
-func BadRequest() *Response[any] {
-	return NewResponse[any](http.StatusBadRequest, nil)
+func BadRequest() *Response {
+	return NewResponse(http.StatusBadRequest, nil)
 }
 
 // NotFound returns a Response initialized with status code 404 and without a body and empty headers.
-func NotFound() *Response[any] {
-	return NewResponse[any](http.StatusNotFound, nil)
+func NotFound() *Response {
+	return NewResponse(http.StatusNotFound, nil)
 }
 
 // InternalServerError returns a Response with status code 500 and a body set to the error message.
-func InternalServerError(err error) *Response[string] {
+func InternalServerError(err error) *Response {
 	return NewResponse(http.StatusInternalServerError, err.Error())
 }
 
@@ -85,9 +87,9 @@ func InternalServerError(err error) *Response[string] {
 // nil and the status code to 404 Not Found.
 //
 // This is a useful shortcut for many HTTP related operations.
-func ResponseOf[T any](body T, err error) *Response[T] {
+func ResponseOf(body any, err error) *Response {
 	if err != nil {
-		return NewResponse[T](http.StatusNotFound, nil)
+		return NewResponse(http.StatusNotFound, nil)
 	}
 	return OkWithBody(body)
 }
