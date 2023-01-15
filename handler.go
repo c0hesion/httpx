@@ -8,7 +8,7 @@ import (
 type HandlerFunc[T any] func(request *Request[T]) *Response
 
 // Handler creates a http.HandlerFunc which wraps a HandlerFunc in some common boilerplate.
-func Handler[Req any, Res any](handlerFunc HandlerFunc[Req]) http.HandlerFunc {
+func Handler[Res any, Req any](handlerFunc HandlerFunc[Req]) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		request := &Request[Req]{
 			Request: r,
