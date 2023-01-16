@@ -20,6 +20,9 @@ func Handler[Res any, Req any](handlerFunc HandlerFunc[Req]) http.HandlerFunc {
 			return
 		}
 		w.WriteHeader(response.StatusCode)
+		for _, c := range response.Cookies {
+			http.SetCookie(w, c)
+		}
 		_, _ = w.Write(transformBodyToBytes[Res](response.Body))
 	}
 }
