@@ -6,6 +6,7 @@ type Response struct {
 	Body       any
 	StatusCode int
 	Headers    http.Header
+	Cookies    []*http.Cookie
 }
 
 // SetBody sets the body value for the Response.
@@ -34,12 +35,19 @@ func (r *Response) AddHeaders(values map[string]string) *Response {
 	return r
 }
 
+// AddCookie adds a Cookie to the Response.
+func (r *Response) AddCookie(cookie *http.Cookie) *Response {
+	r.Cookies = append(r.Cookies, cookie)
+	return r
+}
+
 // NewResponse creates a new Response with the given status and body.
 func NewResponse(statusCode int, body any) *Response {
 	return &Response{
 		Body:       body,
 		StatusCode: statusCode,
 		Headers:    make(http.Header),
+		Cookies:    make([]*http.Cookie, 0),
 	}
 }
 
